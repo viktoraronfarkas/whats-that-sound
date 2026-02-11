@@ -4,6 +4,10 @@ import logo from "./logo.png";
 import "./App.css";
 import JSConfetti from "js-confetti";
 
+import sadKitty from "./img/sad-kitty.jpeg";
+import shockedKitty from "./img/shocked-kitty.jpeg";
+import gaggedKitty from "./img/gagged-kitty.jpeg";
+
 const App = () => {
   const jsConfetti = new JSConfetti();
   const [userCoord, setUserCoord] = useState([]);
@@ -71,14 +75,14 @@ const App = () => {
         console.log(data);
         if (data.response === "unknown aircraft") {
           setUnknown(true);
-          setKittySrc("./img/gagged-kitty.jpeg");
+          setKittySrc(gaggedKitty);
         } else {
           console.log(data.response);
           setAircraftData({
             aircraft: data.response.aircraft,
             callsign: callsign,
           });
-          setKittySrc("./img/shocked-kitty.jpeg");
+          setKittySrc(shockedKitty);
           jsConfetti.addConfetti({
             confettiColors: [
               "#ff0a54",
@@ -121,7 +125,7 @@ const App = () => {
             const nearest = getNearestFlight(data.states);
             getAircraft(nearest.icao24, nearest.callsign);
           } else {
-            setKittySrc("./img/sad-kitty.jpeg");
+            setKittySrc(sadKitty);
             setAircraftData(null);
           }
         });

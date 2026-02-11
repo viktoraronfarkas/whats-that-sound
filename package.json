@@ -1,15 +1,19 @@
 {
   "name": "whats-that-sound",
   "version": "0.1.0",
+  "homepage": "https://viktoraronfarkas.github.io/whats-that-sound",
   "private": true,
   "dependencies": {
     "cra-template-pwa": "2.0.0",
+    "gh-pages": "^6.3.0",
     "js-confetti": "^0.13.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-scripts": "5.0.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
