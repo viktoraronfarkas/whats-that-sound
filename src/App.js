@@ -1,0 +1,247 @@
+import React from "react";
+import { useEffect, useState } from "react";
+import logo from "./logo.png";
+import "./App.css";
+import JSConfetti from "js-confetti";
+
+const App = () => {
+  const jsConfetti = new JSConfetti();
+  const [userCoord, setUserCoord] = useState([]);
+  const [bbox, setBbox] = useState({});
+  const [aircraftData, setAircraftData] = useState(null);
+  const [flightPathData, setFlightPathData] = useState(null);
+  const [unknown, setUnknown] = useState(false);
+  const [kittySrc, setKittySrc] = useState(null);
+
+  const getBbox = () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoord([pos.coords.latitude, pos.coords.longitude]);
+        console.log(userCoord);
+        const userBbox = {
+          lamin: 46.4318173285,
+          lomin: 9.47996951665,
+          lamax: 49.0390742051,
+          lomax: 16.9796667823,
+          // lamin: (pos.coords.latitude - 0.07).toFixed(4),
+          // lomin: (pos.coords.longitude - 0.07).toFixed(4),
+          // lamax: (pos.coords.latitude + 0.07).toFixed(4),
+          // lomax: (pos.coords.longitude + 0.07).toFixed(4),
+        };
+        setBbox(userBbox);
+      },
+      (err) => {},
+    );
+  };
+
+  const getNearestFlight = (flights) => {
+    let nearest;
+    if (flights.length === 1) {
+      nearest = {
+        icao24: flights[0][0],
+        callsign: flights[0][1],
+        diff:
+          Math.abs(flights[0][6] - userCoord[0]) +
+          Math.abs(flights[0][5] - userCoord[1]),
+      };
+      console.log(nearest);
+      return nearest;
+    } else {
+      let diffs = [];
+      flights.forEach((flight) => {
+        diffs.push({
+          icao24: flight[0],
+          callsign: flight[1],
+          diff:
+            Math.abs(flight[6] - userCoord[0]) +
+            Math.abs(flight[5] - userCoord[1]),
+        });
+      });
+      nearest = diffs.reduce((prev, curr) =>
+        prev.diff < curr.diff ? prev : curr,
+      );
+      return nearest;
+    }
+  };
+
+  const getAircraft = (icao24, callsign) => {
+    fetch(`https://api.adsbdb.com/v0/aircraft/${icao24}?${callsign}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.response === "unknown aircraft") {
+          setUnknown(true);
+          setKittySrc("./img/gagged-kitty.jpeg");
+        } else {
+          console.log(data.response);
+          setAircraftData({
+            aircraft: data.response.aircraft,
+            callsign: callsign,
+          });
+          setKittySrc("./img/shocked-kitty.jpeg");
+          jsConfetti.addConfetti({
+            confettiColors: [
+              "#ff0a54",
+              "#ff477e",
+              "#ff7096",
+              "#ff85a1",
+              "#fbb1bd",
+              "#f9bec7",
+            ],
+          });
+        }
+      });
+  };
+
+  const getFlightPath = (callsign) => {
+    fetch(`https://api.adsbdb.com/v0/callsign/${callsign}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.response.flightroute) {
+          console.log(data.response);
+          setFlightPathData(data.response.flightroute);
+        } else {
+          setFlightPathData(null);
+        }
+      });
+  };
+
+  const getFlightData = (bbox) => {
+    if (Object.keys(bbox).length) {
+      console.log(bbox);
+      fetch(
+        "https://opensky-network.org/api/states/all?" +
+          new URLSearchParams(bbox).toString(),
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          if (data.states) {
+            const nearest = getNearestFlight(data.states);
+            getAircraft(nearest.icao24, nearest.callsign);
+          } else {
+            setKittySrc("./img/sad-kitty.jpeg");
+            setAircraftData(null);
+          }
+        });
+    }
+  };
+
+  function Button() {
+    if (aircraftData || unknown) {
+      return (
+        <div>
+          <a
+            href={`https://flightradar24.com/${aircraftData?.callsign ?? ""}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <button className="primary extra">
+              <i>travel</i>
+              <span>Track in FlightRadar24</span>
+            </button>
+          </a>
+        </div>
+      );
+    } else if (!aircraftData) {
+      return (
+        <a href="https://flightradar24.com" target="_blank" rel="noreferrer">
+          <button className="primary extra">
+            <i>travel</i>
+            <span>Open FlightRadar24</span>
+          </button>
+        </a>
+      );
+    }
+  }
+
+  function Aircraft() {
+    if (unknown) {
+      return (
+        <div>
+          <b>
+            It's a plane, but I'm not sure what kind :( Follow it on
+            FlightRadar24 for more info...
+          </b>
+        </div>
+      );
+    } else if (aircraftData) {
+      return (
+        <div>
+          <p>
+            <b>
+              It's a(n) {aircraftData.aircraft.manufacturer}
+              <span> </span>
+              {aircraftData.aircraft.type}!!
+            </b>
+          </p>
+          <ul>
+            <li>
+              <span>
+                <i>airlines</i> Airline:{" "}
+              </span>
+              <span>
+                <b>{flightPathData?.airline?.name}</b>
+              </span>
+            </li>
+            <li>
+              <span>
+                <i>flight_takeoff</i> Departure:
+              </span>
+              <span>
+                <b>{flightPathData?.origin?.municipality}</b>
+              </span>
+            </li>
+            <li>
+              <span>
+                <i>flight_land</i> Destination:{" "}
+              </span>
+              <span>
+                <b>{flightPathData?.destination?.municipality}</b>
+              </span>
+            </li>
+          </ul>
+          <img src={aircraftData.aircraft.url_photo} height="100"></img>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <p>
+            <b>It's not a plane :(</b>
+          </p>
+        </div>
+      );
+    }
+  }
+
+  useEffect(() => {
+    getBbox();
+  }, []);
+
+  useEffect(() => {
+    getFlightData(bbox);
+  }, [bbox]);
+
+  useEffect(() => {
+    if (aircraftData?.callsign) {
+      getFlightPath(aircraftData.callsign);
+    }
+  }, [aircraftData]);
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>What's that sound&nbsp;??</h1>
+      </header>
+      <img className="bottom-margin" src={kittySrc} height="150"></img>
+      <article className="card bottom-margin">
+        <Aircraft></Aircraft>
+      </article>
+      <Button></Button>
+    </div>
+  );
+};
+
+export default App;
