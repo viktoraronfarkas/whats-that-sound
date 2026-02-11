@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/whats-that-sound/static/css/main.ad450f5b.css",
+    "main.js": "/whats-that-sound/static/js/main.8da92fbd.js",
+    "static/media/logo.png": "/whats-that-sound/static/media/logo.0671837b3f9cd62a1fd8.png",
+    "service-worker.js": "/whats-that-sound/service-worker.js",
+    "index.html": "/whats-that-sound/index.html",
+    "main.ad450f5b.css.map": "/whats-that-sound/static/css/main.ad450f5b.css.map",
+    "main.8da92fbd.js.map": "/whats-that-sound/static/js/main.8da92fbd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ad450f5b.css",
+    "static/js/main.8da92fbd.js"
+  ]
+}
