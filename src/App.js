@@ -19,14 +19,14 @@ const App = () => {
         setUserCoord([pos.coords.latitude, pos.coords.longitude]);
         console.log(userCoord);
         const userBbox = {
-          lamin: 46.4318173285,
-          lomin: 9.47996951665,
-          lamax: 49.0390742051,
-          lomax: 16.9796667823,
-          // lamin: (pos.coords.latitude - 0.07).toFixed(4),
-          // lomin: (pos.coords.longitude - 0.07).toFixed(4),
-          // lamax: (pos.coords.latitude + 0.07).toFixed(4),
-          // lomax: (pos.coords.longitude + 0.07).toFixed(4),
+          // lamin: 46.4318173285,
+          // lomin: 9.47996951665,
+          // lamax: 49.0390742051,
+          // lomax: 16.9796667823,
+          lamin: (pos.coords.latitude - 0.07).toFixed(4),
+          lomin: (pos.coords.longitude - 0.07).toFixed(4),
+          lamax: (pos.coords.latitude + 0.07).toFixed(4),
+          lomax: (pos.coords.longitude + 0.07).toFixed(4),
         };
         setBbox(userBbox);
       },
