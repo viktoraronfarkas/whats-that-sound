@@ -13,7 +13,9 @@ const App = () => {
   const [userCoord, setUserCoord] = useState([]);
   const [bbox, setBbox] = useState({});
   const [aircraftData, setAircraftData] = useState(null);
-  const [flightPathData, setFlightPathData] = useState(null);
+  const [airline, setAirline] = useState(null);
+  const [departure, setDeparture] = useState(null);
+  const [arrival, setArrival] = useState(null);
   const [unknown, setUnknown] = useState(false);
   const [kittySrc, setKittySrc] = useState(null);
 
@@ -23,14 +25,14 @@ const App = () => {
         setUserCoord([pos.coords.latitude, pos.coords.longitude]);
         console.log(userCoord);
         const userBbox = {
-          // lamin: 46.4318173285,
-          // lomin: 9.47996951665,
-          // lamax: 49.0390742051,
-          // lomax: 16.9796667823,
-          lamin: (pos.coords.latitude - 0.07).toFixed(4),
-          lomin: (pos.coords.longitude - 0.07).toFixed(4),
-          lamax: (pos.coords.latitude + 0.07).toFixed(4),
-          lomax: (pos.coords.longitude + 0.07).toFixed(4),
+          lamin: 46.4318173285,
+          lomin: 9.47996951665,
+          lamax: 49.0390742051,
+          lomax: 16.9796667823,
+          // lamin: (pos.coords.latitude - 0.07).toFixed(4),
+          // lomin: (pos.coords.longitude - 0.07).toFixed(4),
+          // lamax: (pos.coords.latitude + 0.07).toFixed(4),
+          // lomax: (pos.coords.longitude + 0.07).toFixed(4),
         };
         setBbox(userBbox);
       },
@@ -76,12 +78,14 @@ const App = () => {
         if (data.response === "unknown aircraft") {
           setUnknown(true);
           setKittySrc(gaggedKitty);
+          setAirline("N/A");
         } else {
           console.log(data.response);
           setAircraftData({
             aircraft: data.response.aircraft,
-            callsign: callsign,
+            callsign: callsign.replaceAll(" ", ""),
           });
+          setAirline(data.response.aircraft.registered_owner);
           setKittySrc(shockedKitty);
           jsConfetti.addConfetti({
             confettiColors: [
@@ -98,15 +102,19 @@ const App = () => {
   };
 
   const getFlightPath = (callsign) => {
-    fetch(`https://api.adsbdb.com/v0/callsign/${callsign}`)
+    fetch(
+      `https://api.aviationstack.com/v1/flights?flight_icao=${callsign}&access_key=${process.env.REACT_APP_AVIATIONSTACK_KEY}&limit=1`,
+    )
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        if (data.response.flightroute) {
-          console.log(data.response);
-          setFlightPathData(data.response.flightroute);
+        if (data.data.length) {
+          console.log(data.data);
+          setDeparture(data.data[0].departure.airport.split(" ")[0]);
+          setArrival(data.data[0].arrival.airport.split(" ")[0]);
         } else {
-          setFlightPathData(null);
+          setDeparture("N/A");
+          setArrival("N/A");
         }
       });
   };
@@ -186,7 +194,7 @@ const App = () => {
                 <i>airlines</i> Airline:{" "}
               </span>
               <span>
-                <b>{flightPathData?.airline?.name}</b>
+                <b>{airline}</b>
               </span>
             </li>
             <li>
@@ -194,15 +202,15 @@ const App = () => {
                 <i>flight_takeoff</i> Departure:
               </span>
               <span>
-                <b>{flightPathData?.origin?.municipality}</b>
+                <b>{departure}</b>
               </span>
             </li>
             <li>
               <span>
-                <i>flight_land</i> Destination:{" "}
+                <i>flight_land</i> Arrival:{" "}
               </span>
               <span>
-                <b>{flightPathData?.destination?.municipality}</b>
+                <b>{arrival}</b>
               </span>
             </li>
           </ul>
