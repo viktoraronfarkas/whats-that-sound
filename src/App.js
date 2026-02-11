@@ -206,7 +206,10 @@ const App = () => {
               </span>
             </li>
           </ul>
-          <img src={aircraftData.aircraft.url_photo} height="100"></img>
+          <img
+            src={aircraftData.aircraft.url_photo}
+            height={aircraftData.aircraft.url_photo ? "100" : "0"}
+          ></img>
         </div>
       );
     } else {
