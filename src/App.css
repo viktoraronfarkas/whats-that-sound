@@ -77,3 +77,20 @@ article {
 img {
   border-radius: 15px !important;
 }
+
+.collection-overlay {
+  background-color: #a888b5;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+
+.toggle-page {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 9999
+}
