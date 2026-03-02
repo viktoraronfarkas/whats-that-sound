@@ -288,7 +288,7 @@ const Tracker = () => {
 
   useEffect(() => {
     if (aircraftData?.callsign) {
-      //getFlightPath(aircraftData.callsign);
+      getFlightPath(aircraftData.callsign);
     }
   }, [aircraftData]);
 
