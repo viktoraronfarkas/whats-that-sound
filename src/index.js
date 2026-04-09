@@ -5,6 +5,10 @@ import { Provider } from "react-redux";
 import "./index.css";
 import App from "./App";
 
+window.onerror = function (e) {
+  alert(e.toString());
+};
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
