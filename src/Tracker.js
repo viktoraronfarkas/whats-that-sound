@@ -24,6 +24,8 @@ const Tracker = () => {
   const dispatch = useDispatch();
   const view = useSelector((state) => state.view.value);
 
+  let geolocationErrorShown = false;
+
   const openCollection = () => {
     dispatch(setToCollection());
   };
@@ -45,7 +47,13 @@ const Tracker = () => {
         };
         setBbox(userBbox);
       },
-      (err) => {},
+      (err) => {
+        if (!geolocationErrorShown) {
+          console.error(err);
+          alert(err.message);
+          geolocationErrorShown = true;
+        }
+      },
     );
   };
 
